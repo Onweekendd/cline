@@ -31,7 +31,8 @@
 		"react-use": "^17.6.0",
 		"react-virtuoso": "^4.12.3",
 		"rehype-highlight": "^7.0.1",
-		"styled-components": "^6.1.15"
+		"styled-components": "^6.1.15",
+		"unist-util-visit": "^5.0.0"
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.17.0",

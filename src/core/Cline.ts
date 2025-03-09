@@ -1529,7 +1529,9 @@ export class Cline {
 					// ignore any content after a tool has already been used
 					this.userMessageContent.push({
 						type: "text",
-						text: `Tool [${block.name}] was not executed because a tool has already been used in this message. Only one tool may be used per message. You must assess the first tool's result before proceeding to use the next tool.`,
+						text: `Tool [${block.name}] was not executed because a tool has already been used in this message. 
+						Only one tool may be used per message. 
+						You must assess the first tool's result before proceeding to use the next tool.`,
 					})
 					break
 				}

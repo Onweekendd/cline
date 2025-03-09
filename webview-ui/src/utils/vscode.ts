@@ -76,4 +76,5 @@ class VSCodeAPIWrapper {
 }
 
 // Exports class singleton to prevent multiple invocations of acquireVsCodeApi.
-export const vscode = new VSCodeAPIWrapper()
+const vscode = new VSCodeAPIWrapper()
+export { vscode }

@@ -143,62 +143,52 @@ function blockAnchorFallbackMatch(originalContent: string, searchContent: string
 }
 
 /**
- * This function reconstructs the file content by applying a streamed diff (in a
- * specialized SEARCH/REPLACE block format) to the original file content. It is designed
- * to handle both incremental updates and the final resulting file after all chunks have
- * been processed.
+ * 此函数通过将流式差异(以专门的 SEARCH/REPLACE 块格式)应用于原始文件内容来重建文件内容。
+ * 它设计用于处理增量更新和所有块处理完成后的最终文件。
  *
- * The diff format is a custom structure that uses three markers to define changes:
+ * 差异格式是一个使用三个标记来定义更改的自定义结构:
  *
  *   <<<<<<< SEARCH
- *   [Exact content to find in the original file]
+ *   [在原始文件中要查找的精确内容]
  *   =======
- *   [Content to replace with]
+ *   [要替换的内容]
  *   >>>>>>> REPLACE
  *
- * Behavior and Assumptions:
- * 1. The file is processed chunk-by-chunk. Each chunk of `diffContent` may contain
- *    partial or complete SEARCH/REPLACE blocks. By calling this function with each
- *    incremental chunk (with `isFinal` indicating the last chunk), the final reconstructed
- *    file content is produced.
+ * 行为和假设:
+ * 1. 文件按块处理。每个 `diffContent` 块可能包含部分或完整的 SEARCH/REPLACE 块。
+ *    通过使用每个增量块调用此函数(使用 `isFinal` 指示最后一个块)，生成最终重建的文件内容。
  *
- * 2. Matching Strategy (in order of attempt):
- *    a. Exact Match: First attempts to find the exact SEARCH block text in the original file
- *    b. Line-Trimmed Match: Falls back to line-by-line comparison ignoring leading/trailing whitespace
- *    c. Block Anchor Match: For blocks of 3+ lines, tries to match using first/last lines as anchors
- *    If all matching strategies fail, an error is thrown.
+ * 2. 匹配策略(按尝试顺序):
+ *    a. 精确匹配: 首先尝试在原始文件中查找精确的 SEARCH 块文本
+ *    b. 行修剪匹配: 回退到忽略前导/尾随空白的逐行比较
+ *    c. 块锚点匹配: 对于 3 行以上的块，尝试使用第一行/最后一行作为锚点进行匹配
+ *    如果所有匹配策略都失败，则抛出错误。
  *
- * 3. Empty SEARCH Section:
- *    - If SEARCH is empty and the original file is empty, this indicates creating a new file
- *      (pure insertion).
- *    - If SEARCH is empty and the original file is not empty, this indicates a complete
- *      file replacement (the entire original content is considered matched and replaced).
+ * 3. 空 SEARCH 部分:
+ *    - 如果 SEARCH 为空且原始文件为空，这表示创建新文件(纯插入)。
+ *    - 如果 SEARCH 为空但原始文件不为空，这表示完全文件替换(整个原始内容被视为匹配并替换)。
  *
- * 4. Applying Changes:
- *    - Before encountering the "=======" marker, lines are accumulated as search content.
- *    - After "=======" and before ">>>>>>> REPLACE", lines are accumulated as replacement content.
- *    - Once the block is complete (">>>>>>> REPLACE"), the matched section in the original
- *      file is replaced with the accumulated replacement lines, and the position in the original
- *      file is advanced.
+ * 4. 应用更改:
+ *    - 在遇到 "=======" 标记之前，行被累积为搜索内容。
+ *    - 在 "=======" 之后和 ">>>>>>> REPLACE" 之前，行被累积为替换内容。
+ *    - 一旦块完成(">>>>>>> REPLACE")，原始文件中匹配的部分被累积的替换行替换，
+ *      并且原始文件中的位置前进。
  *
- * 5. Incremental Output:
- *    - As soon as the match location is found and we are in the REPLACE section, each new
- *      replacement line is appended to the result so that partial updates can be viewed
- *      incrementally.
+ * 5. 增量输出:
+ *    - 一旦找到匹配位置并且我们在 REPLACE 部分中，每个新的替换行都会附加到结果中，
+ *      以便可以增量查看部分更新。
  *
- * 6. Partial Markers:
- *    - If the final line of the chunk looks like it might be part of a marker but is not one
- *      of the known markers, it is removed. This prevents incomplete or partial markers
- *      from corrupting the output.
+ * 6. 部分标记:
+ *    - 如果块的最后一行看起来可能是标记的一部分但不是已知标记之一，则将其删除。
+ *      这可以防止不完整或部分标记破坏输出。
  *
- * 7. Finalization:
- *    - Once all chunks have been processed (when `isFinal` is true), any remaining original
- *      content after the last replaced section is appended to the result.
- *    - Trailing newlines are not forcibly added. The code tries to output exactly what is specified.
+ * 7. 完成:
+ *    - 一旦所有块都已处理(当 `isFinal` 为 true 时)，最后替换部分之后的任何剩余原始内容
+ *      都会附加到结果中。
+ *    - 不强制添加尾随换行符。代码尝试精确输出指定的内容。
  *
- * Errors:
- * - If the search block cannot be matched using any of the available matching strategies,
- *   an error is thrown.
+ * 错误:
+ * - 如果使用任何可用的匹配策略都无法匹配搜索块，则抛出错误。
  */
 export async function constructNewFileContent(diffContent: string, originalContent: string, isFinal: boolean): Promise<string> {
 	let result = ""
