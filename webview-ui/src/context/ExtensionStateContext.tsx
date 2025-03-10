@@ -13,18 +13,19 @@ import { TelemetrySetting } from "../../../src/shared/TelemetrySetting"
 
 // 定义Context的类型，扩展了ExtensionState并添加额外方法和状态
 interface ExtensionStateContextType extends ExtensionState {
-	didHydrateState: boolean // 标记状态是否已经被初始化
-	showWelcome: boolean // 是否显示欢迎页面
-	theme: any // 主题配置
-	openRouterModels: Record<string, ModelInfo> // OpenRouter模型列表
-	openAiModels: string[] // OpenAI模型列表
-	mcpServers: McpServer[] // MCP服务器列表
-	mcpMarketplaceCatalog: McpMarketplaceCatalog // MCP市场目录
-	filePaths: string[] // 工作区文件路径列表
-	setApiConfiguration: (config: ApiConfiguration) => void // 设置API配置
-	setCustomInstructions: (value?: string) => void // 设置自定义指令
-	setTelemetrySetting: (value: TelemetrySetting) => void // 设置遥测选项
-	setShowAnnouncement: (value: boolean) => void // 设置是否显示公告
+	didHydrateState: boolean
+	showWelcome: boolean
+	theme: any
+	openRouterModels: Record<string, ModelInfo>
+	openAiModels: string[]
+	mcpServers: McpServer[]
+	mcpMarketplaceCatalog: McpMarketplaceCatalog
+	filePaths: string[]
+	setApiConfiguration: (config: ApiConfiguration) => void
+	setCustomInstructions: (value?: string) => void
+	setTelemetrySetting: (value: TelemetrySetting) => void
+	setShowAnnouncement: (value: boolean) => void
+	setPlanActSeparateModelsSetting: (value: boolean) => void
 }
 
 // 创建Context
@@ -46,6 +47,7 @@ export const ExtensionStateContextProvider: React.FC<{
 		platform: DEFAULT_PLATFORM,
 		telemetrySetting: "unset",
 		vscMachineId: "",
+		planActSeparateModelsSetting: true,
 	})
 	const [didHydrateState, setDidHydrateState] = useState(false) // 状态是否已初始化
 	const [showWelcome, setShowWelcome] = useState(false) // 是否显示欢迎页
@@ -187,6 +189,11 @@ export const ExtensionStateContextProvider: React.FC<{
 			setState((prevState) => ({
 				...prevState,
 				telemetrySetting: value,
+			})),
+		setPlanActSeparateModelsSetting: (value) =>
+			setState((prevState) => ({
+				...prevState,
+				planActSeparateModelsSetting: value,
 			})),
 		setShowAnnouncement: (value) =>
 			setState((prevState) => ({
